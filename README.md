@@ -52,6 +52,7 @@ Switch instantly between **8 dynamic layouts**:
 4.  **Export:** Download a high-resolution PNG ready for Instagram, Pinterest, or Twitter.
 
 ---
+🔗 **QUOTESTUDIO:** [Live.link](https://pstarz7.github.io/QuoteStudio/)
 
 ## 🎯 Use Cases
 * **Content Creators:** Quickly make aesthetic Instagram Stories.
@@ -65,8 +66,8 @@ Switch instantly between **8 dynamic layouts**:
 Created with passion by **PSTARZ**.
 
 🔗 **Portfolio:** [pstarz.link](https://my-new-portfolio-3sq7.vercel.app/)
-
-> "Design is silence made visible." — QuoteStudio Master
+🔗 **QUOTESTUDIO:** [Live.link](https://pstarz7.github.io/QuoteStudio/)
+> "Design is silence made visible." — QuoteStudio By PSTRAZ
 
 ---
 
