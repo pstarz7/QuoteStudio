@@ -1,4 +1,5 @@
 # QuoteStudio
+🔗 **QUOTESTUDIO:** [Live.link](https://pstarz7.github.io/QuoteStudio/)
 ### *AI Intelligence x Studio-Grade Design*
 
 **QuoteStudio Master** is a high-fidelity, minimalist quote editor designed for creators who value aesthetics. Built with a focus on **Vibe Coding**, this project blends high-end typography, dynamic frame geometry, and AI-powered wisdom into a single, seamless browser-based experience.
