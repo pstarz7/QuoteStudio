@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>QuoteStudio — Minimalist Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@300;400;600;900&family=Bebas+Neue&family=Space+Mono&family=Dancing+Script:wght@700&family=Cinzel:wght@700&family=Cormorant+Garamond:ital,wght@1,600&family=Montserrat:wght@800&family=Homemade+Apple&family=Special+Elite&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #08090a;
+            --lilac-ash: #a7a2a9;
+            --bright-snow: #f4f7f5;
+            --charcoal: #575a5e;
+            --carbon-black: #222823;
+        }
+
+        /* Essential Layout Fixes */
+        body { 
+            background: var(--black); 
+            color: var(--bright-snow); 
+            font-family: 'Inter', sans-serif; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+        }
+
+        .hero { 
+            flex-shrink: 0; 
+            background: var(--black); 
+            border-bottom: 1px solid var(--carbon-black); 
+            padding: 1rem 2rem; 
+            z-index: 50;
+        }
+
+        .main-content { 
+            flex: 1; 
+            display: flex; 
+            overflow: hidden; /* Desktop keeps split view */
+        }
+
+        /* Compact Preview Section */
+        .preview-box { 
+            flex: 1; 
+            background: #0d0e10; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 30px;
+            background-image: radial-gradient(var(--carbon-black) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        canvas { 
+            cursor: move; 
+            touch-action: none; 
+            background: var(--bright-snow); 
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8); 
+            border: 1px solid var(--charcoal);
+            max-height: 80%; /* Adjusted for better visibility */
+            width: auto !important; 
+            height: auto !important; 
+            object-fit: contain;
+        }
+
+        /* Fixed Sidebar */
+        .sidebar { 
+            width: 420px; 
+            background: var(--black); 
+            border-left: 1px solid var(--carbon-black); 
+            padding: 1.5rem; 
+            overflow-y: auto; 
+            scrollbar-width: thin; 
+            scrollbar-color: var(--charcoal) transparent;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 1024px) {
+            body { overflow-y: auto; height: auto; }
+            .main-content { flex-direction: column; height: auto; overflow: visible; }
+            .sidebar { width: 100%; border-left: none; border-top: 1px solid var(--carbon-black); height: auto; }
+            .preview-box { height: 500px; flex: none; padding: 20px; }
+            .hero { padding: 1rem; }
+        }
+
+        .section-card { 
+            background: var(--carbon-black); 
+            border: 1px solid var(--charcoal); 
+            padding: 1.25rem; 
+            border-radius: 4px; 
+            margin-bottom: 1.5rem; 
+        }
+        
+        /* UI Elements */
+        .ui-btn { 
+            font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; 
+            padding: 10px 4px; border-radius: 2px; transition: all 0.2s; 
+            background: transparent; color: var(--lilac-ash); border: 1px solid var(--charcoal); 
+        }
+        .ui-btn:hover { border-color: var(--bright-snow); color: var(--bright-snow); }
+        .active-btn { border-color: var(--bright-snow) !important; background: var(--bright-snow) !important; color: var(--black) !important; }
+        .active-filter { background: var(--lilac-ash) !important; color: var(--black) !important; border-color: var(--lilac-ash) !important; }
+        
+        textarea, select, input[type="text"] { 
+            background: var(--black) !important; 
+            color: var(--bright-snow) !important; 
+            border: 1px solid var(--charcoal) !important; 
+            border-radius: 2px !important; 
+            width: 100%;
+        }
+
+        input[type="range"] { accent-color: var(--bright-snow); height: 2px; width: 100%; cursor: pointer; }
+        
+        .footer { 
+            flex-shrink: 0; 
+            background: var(--black); 
+            border-top: 1px solid var(--carbon-black); 
+            padding: 0.75rem 2rem; 
+        }
+    </style>
+</head>
+<body>
+
+<header class="hero flex justify-between items-center">
+    <div>
+        <h1 class="text-xl font-black tracking-tighter uppercase text-[var(--bright-snow)]">
+            QUOTE<span class="text-[var(--lilac-ash)]">STUDIO</span>
+        </h1>
+    </div>
+    <div class="flex gap-4">
+        <button onclick="resetPosition()" class="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal)] hover:text-white transition-colors">Recenter</button>
+        <button onclick="downloadImage()" class="bg-[var(--bright-snow)] text-[var(--black)] px-6 py-2 rounded-sm font-black text-[10px] uppercase tracking-widest hover:invert transition-all">Export Post</button>
+    </div>
+</header>
+
+<div class="main-content">
+    <section class="preview-box">
+        <canvas id="canvas" width="1080" height="1350"></canvas>
+    </section>
+
+    <aside class="sidebar">
+        <div class="section-card" style="border-style: double; border-width: 3px;">
+            <h3 class="text-[10px] font-black uppercase mb-3 text-[var(--bright-snow)]">AI Wisdom Engine</h3>
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <input type="text" id="ai-mood" placeholder="Mood..." class="p-2 text-xs">
+                <select id="ai-type" class="p-2 text-xs">
+                    <option value="Philosophical">Philosophical</option>
+                    <option value="Psychological">Psychological</option>
+                    <option value="Poetic">Poetic</option>
+                </select>
+            </div>
+            <button onclick="generateAIQuotes()" class="w-full py-2 bg-[var(--charcoal)] text-white font-bold text-[10px] uppercase tracking-widest hover:bg-[var(--lilac-ash)] hover:text-black transition-colors">Request 5 Quotes</button>
+            <div id="ai-results" class="hidden mt-3 space-y-2 max-h-32 overflow-y-auto text-[10px] border-t border-[var(--charcoal)] pt-2"></div>
+        </div>
+
+        <div class="section-card">
+            <h3 class="text-[10px] font-black uppercase mb-4 text-[var(--lilac-ash)]">Visual Processing</h3>
+            <label class="block text-[9px] uppercase text-zinc-500 mb-2">Upload Image</label>
+            <input type="file" id="upload" accept="image/*" class="text-[10px] mb-4 file:bg-zinc-800 file:border-none file:text-white file:px-2 file:py-1 file:mr-2" />
+            
+            <div class="flex flex-wrap gap-2 mb-6">
+                <button onclick="setFilter('none')" id="f-none" class="filter-btn text-[8px] px-3 py-1 active-filter">RAW</button>
+                <button onclick="setFilter('vintage')" id="f-vintage" class="filter-btn text-[8px] px-3 py-1">VINTAGE</button>
+                <button onclick="setFilter('dark')" id="f-dark" class="filter-btn text-[8px] px-3 py-1">NOIR</button>
+                <button onclick="setFilter('sad')" id="f-sad" class="filter-btn text-[8px] px-3 py-1">B&W</button>
+                <button onclick="setFilter('happy')" id="f-happy" class="filter-btn text-[8px] px-3 py-1">VIVID</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <div><span class="text-[9px] uppercase font-bold text-[var(--charcoal)]">Brightness</span><input type="range" id="brightness" min="10" max="150" value="100"></div>
+                <div><span class="text-[9px] uppercase font-bold text-[var(--charcoal)]">Blur</span><input type="range" id="blur" min="0" max="30" value="0"></div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3 class="text-[10px] font-black uppercase mb-4 text-[var(--lilac-ash)]">Frame Geometry</h3>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="setFrame('polaroid-classic')" id="btn-polaroid-classic" class="ui-btn active-btn">Portrait 4:5</button>
+                <button onclick="setFrame('insta-story')" id="btn-insta-story" class="ui-btn">Story 9:16</button>
+                <button onclick="setFrame('story-wide')" id="btn-story-wide" class="ui-btn">Story Wide</button>
+                <button onclick="setFrame('polaroid-wide')" id="btn-polaroid-wide" class="ui-btn">Square Wide</button>
+                <button onclick="setFrame('polaroid-tall')" id="btn-polaroid-tall" class="ui-btn">Text Down</button>
+                <button onclick="setFrame('polaroid-rev')" id="btn-polaroid-rev" class="ui-btn">Text Up</button>
+                <button onclick="setFrame('solid-color')" id="btn-solid-color" class="ui-btn col-span-2">Solid Canvas Mode</button>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3 class="text-[10px] font-black uppercase mb-4 text-[var(--lilac-ash)]">Type Settings</h3>
+            <textarea id="quoteText" rows="2" class="p-3 text-xs outline-none mb-3">"Design is silence made visible."</textarea>
+            
+            <div class="flex gap-2 mb-4">
+                <button onclick="toggleFormat('bold')" id="btn-bold" class="w-10 h-10 border border-[var(--charcoal)] text-xs font-bold">B</button>
+                <button onclick="toggleFormat('italic')" id="btn-italic" class="w-10 h-10 border border-[var(--charcoal)] italic text-xs">I</button>
+                <input type="color" id="fontColor" value="#08090a" class="flex-1 h-10 bg-transparent border-none cursor-pointer">
+                <input type="color" id="bgColor" value="#f4f7f5" class="w-10 h-10 bg-transparent border-none cursor-pointer">
+            </div>
+
+            <select id="fontFamily" class="p-3 text-xs mb-4">
+                <option value="Playfair Display">Playfair Classic</option>
+                <option value="Inter">Modern Inter</option>
+                <option value="Bebas Neue">Bold Impact</option>
+                <option value="Dancing Script">Dancing Script</option>
+                <option value="Cinzel">Cinzel Roman</option>
+                <option value="Cormorant Garamond">Elegant Garamond</option>
+                <option value="Montserrat">Heavy Montserrat</option>
+                <option value="Homemade Apple">Handwritten Pencil</option>
+                <option value="Special Elite">Mechanical Type</option>
+                <option value="Space Mono">Space Mono</option>
+            </select>
+
+            <div class="space-y-4">
+                <div class="flex justify-between text-[9px] uppercase font-bold text-[var(--charcoal)]"><span>Scale</span><input type="range" id="fontSize" min="20" max="250" value="80"></div>
+                <div class="flex justify-between text-[9px] uppercase font-bold text-[var(--charcoal)]"><span>Leading</span><input type="range" id="lineHeight" min="0.8" max="2.5" step="0.1" value="1.2"></div>
+                <div class="flex justify-between text-[9px] uppercase font-bold text-[var(--charcoal)]"><span>Kerning</span><input type="range" id="letterSpacing" min="-5" max="50" value="0"></div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<footer class="footer flex justify-between items-center">
+    <p class="text-[9px] text-[var(--charcoal)] font-bold tracking-widest uppercase">© 2025 QUOTE STUDIO</p>
+    <a href="https://my-new-portfolio-3sq7.vercel.app/" target="_blank" class="text-[9px] font-black uppercase tracking-[3px] text-[var(--lilac-ash)] hover:text-white transition-colors">Build with Vibe - PSTARZ</a>
+</footer>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let bgImg = null;
+const state = {
+    text: `"Design is silence made visible."`,
+    x: 540, y: 1100,
+    fontSize: 80,
+    fontFamily: 'Playfair Display',
+    fontColor: '#08090a',
+    bgColor: '#f4f7f5',
+    lineHeight: 1.2,
+    letterSpacing: 0,
+    brightness: 100,
+    blur: 0,
+    frame: 'polaroid-classic',
+    filter: 'none',
+    isBold: false,
+    isItalic: false,
+    isDragging: false
+};
+
+const getPos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: (cx - rect.left) * (canvas.width / rect.width), y: (cy - rect.top) * (canvas.height / rect.height) };
+};
+
+canvas.addEventListener('mousedown', () => state.isDragging = true);
+canvas.addEventListener('touchstart', (e) => { e.preventDefault(); state.isDragging = true; }, {passive: false});
+
+window.addEventListener('mousemove', (e) => { if(state.isDragging) { const p = getPos(e); state.x = p.x; state.y = p.y; draw(); } });
+window.addEventListener('touchmove', (e) => { if(state.isDragging) { const p = getPos(e); state.x = p.x; state.y = p.y; draw(); } }, {passive: false});
+
+window.addEventListener('mouseup', () => state.isDragging = false);
+window.addEventListener('touchend', () => state.isDragging = false);
+
+function resetPosition() { state.x = canvas.width/2; state.y = canvas.height/2; draw(); }
+
+function toggleFormat(type) {
+    if(type === 'bold') state.isBold = !state.isBold;
+    if(type === 'italic') state.isItalic = !state.isItalic;
+    document.getElementById('btn-bold').classList.toggle('active-btn', state.isBold);
+    document.getElementById('btn-italic').classList.toggle('active-btn', state.isItalic);
+    draw();
+}
+
+function generateAIQuotes() {
+    const res = document.getElementById('ai-results');
+    res.classList.remove('hidden');
+    res.innerHTML = "Processing deep logic...";
+    setTimeout(() => {
+        const quotes = ["Architecture is inhabited sculpture.", "The detail is not the detail. It is the design.", "Less is only more where more is no good.", "Whitespace is like air: it is necessary for design to breathe.", "Simplicity is the final achievement."];
+        res.innerHTML = quotes.map(q => `<div onclick="useQuote('${q.replace(/'/g, "\\'")}')" class="p-2 border-b border-[var(--charcoal)] hover:text-white cursor-pointer italic">"${q}"</div>`).join('');
+    }, 600);
+}
+function useQuote(q) { state.text = `"${q}"`; document.getElementById('quoteText').value = state.text; draw(); }
+
+['quoteText', 'fontSize', 'fontFamily', 'fontColor', 'bgColor', 'lineHeight', 'letterSpacing', 'brightness', 'blur'].forEach(id => {
+    document.getElementById(id).addEventListener('input', (e) => {
+        state[id === 'quoteText' ? 'text' : id] = e.target.value;
+        draw();
+    });
+});
+
+document.getElementById('upload').addEventListener('change', e => {
+    const reader = new FileReader();
+    reader.onload = (ev) => { bgImg = new Image(); bgImg.onload = draw; bgImg.src = ev.target.result; };
+    reader.readAsDataURL(e.target.files[0]);
+});
+
+function setFrame(type) {
+    state.frame = type;
+    document.querySelectorAll('.ui-btn').forEach(b => b.classList.remove('active-btn'));
+    document.getElementById('btn-' + type).classList.add('active-btn');
+    canvas.height = type.includes('story') ? 1920 : 1350;
+    resetPosition(); draw();
+}
+
+function setFilter(f) {
+    state.filter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter'));
+    document.getElementById('f-' + f).classList.add('active-filter');
+    draw();
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = state.bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (bgImg && state.frame !== 'solid-color') {
+        ctx.save();
+        let fStr = `brightness(${state.brightness}%) blur(${state.blur}px) `;
+        if(state.filter==='vintage') fStr+='sepia(0.5) contrast(0.9)';
+        if(state.filter==='dark') fStr+='brightness(0.4) contrast(1.5)';
+        if(state.filter==='sad') fStr+='grayscale(1)';
+        if(state.filter==='happy') fStr+='saturate(2)';
+        ctx.filter = fStr;
+        
+        let ix=0, iy=0, iw=canvas.width, ih=canvas.height;
+        if(state.frame === 'insta-story') { ix=100; iy=150; iw=880; ih=1000; }
+        else if(state.frame === 'story-wide') { ix=80; iy=350; iw=920; ih=600; }
+        else if(state.frame === 'polaroid-classic') { ix=120; iy=120; iw=840; ih=840; }
+        else if(state.frame === 'polaroid-wide') { ix=100; iy=180; iw=880; ih=550; }
+        else if(state.frame === 'polaroid-tall') { ix=80; iy=80; iw=920; ih=800; }
+        else if(state.frame === 'polaroid-rev') { ix=80; iy=480; iw=920; ih=800; }
+
+        const scale = Math.max(iw/bgImg.width, ih/bgImg.height);
+        if(state.frame.includes('polaroid')) { ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = 50; }
+        ctx.beginPath(); ctx.rect(ix, iy, iw, ih); ctx.clip();
+        ctx.drawImage(bgImg, ix+(iw-bgImg.width*scale)/2, iy+(ih-bgImg.height*scale)/2, bgImg.width*scale, bgImg.height*scale);
+        ctx.restore();
+    }
+
+    ctx.save();
+    ctx.fillStyle = state.fontColor; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    let fs = ""; if(state.isBold) fs+="bold "; if(state.isItalic) fs+="italic ";
+    ctx.font = `${fs}${state.fontSize}px "${state.fontFamily}"`;
+    ctx.letterSpacing = `${state.letterSpacing}px`;
+    wrapText(ctx, state.text, state.x, state.y, canvas.width * 0.82, state.fontSize * state.lineHeight);
+    ctx.restore();
+}
+
+function wrapText(context, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '', lines = [];
+    for (let n = 0; n < words.length; n++) {
+        let testLine = line + words[n] + ' ';
+        if (context.measureText(testLine).width > maxWidth) { lines.push(line); line = words[n] + ' '; }
+        else { line = testLine; }
+    }
+    lines.push(line);
+    let startY = y - ((lines.length - 1) * lineHeight) / 2;
+    lines.forEach((l, i) => context.fillText(l.trim(), x, startY + (i * lineHeight)));
+}
+
+function downloadImage() {
+    const link = document.createElement('a');
+    link.download = `StudioPstarz-Artwork.png`;
+    link.href = canvas.toDataURL('image/png', 1.0);
+    link.click();
+}
+
+window.onload = draw;
+</script>
+</body>
+</html>
