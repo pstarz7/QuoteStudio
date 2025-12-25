@@ -15,166 +15,165 @@
             --carbon-black: #222823;
         }
 
-        /* Essential Layout Fixes */
         body { 
             background: var(--black); 
             color: var(--bright-snow); 
             font-family: 'Inter', sans-serif; 
             height: 100vh; 
+            margin: 0; 
             display: flex; 
-            flex-direction: column; 
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Fixed structural elements */
+        .hero, .footer { flex-shrink: 0; background: var(--black); border-color: var(--carbon-black); z-index: 100; }
+        .hero { border-bottom-width: 1px; padding: 0.75rem 1.5rem; }
+        .footer { border-top-width: 1px; padding: 0.5rem 1.5rem; }
+
+        .workspace { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: row; 
             overflow: hidden; 
         }
 
-        .hero { 
-            flex-shrink: 0; 
-            background: var(--black); 
-            border-bottom: 1px solid var(--carbon-black); 
-            padding: 1rem 2rem; 
-            z-index: 50;
-        }
-
-        .main-content { 
-            flex: 1; 
-            display: flex; 
-            overflow: hidden; /* Desktop keeps split view */
-        }
-
-        /* Compact Preview Section */
-        .preview-box { 
+        /* Compact Preview Area */
+        .preview-pane { 
             flex: 1; 
             background: #0d0e10; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            padding: 30px;
+            padding: 20px;
             background-image: radial-gradient(var(--carbon-black) 1px, transparent 1px);
-            background-size: 30px 30px;
+            background-size: 20px 20px;
+            position: relative;
         }
 
         canvas { 
             cursor: move; 
             touch-action: none; 
             background: var(--bright-snow); 
-            box-shadow: 0 40px 100px rgba(0,0,0,0.8); 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8); 
             border: 1px solid var(--charcoal);
-            max-height: 80%; /* Adjusted for better visibility */
-            width: auto !important; 
-            height: auto !important; 
+            max-width: 95%;
+            max-height: 90%;
+            height: auto !important;
+            width: auto !important;
             object-fit: contain;
         }
 
-        /* Fixed Sidebar */
-        .sidebar { 
-            width: 420px; 
+        /* Scrollable Controls */
+        .edit-pane { 
+            width: 400px; 
             background: var(--black); 
             border-left: 1px solid var(--carbon-black); 
-            padding: 1.5rem; 
             overflow-y: auto; 
-            scrollbar-width: thin; 
-            scrollbar-color: var(--charcoal) transparent;
+            padding: 1.5rem;
+            scrollbar-width: thin;
         }
 
-        /* Mobile Responsiveness */
+        /* Mobile UX: Sticky Preview on Top */
         @media (max-width: 1024px) {
-            body { overflow-y: auto; height: auto; }
-            .main-content { flex-direction: column; height: auto; overflow: visible; }
-            .sidebar { width: 100%; border-left: none; border-top: 1px solid var(--carbon-black); height: auto; }
-            .preview-box { height: 500px; flex: none; padding: 20px; }
-            .hero { padding: 1rem; }
+            .workspace { flex-direction: column; }
+            .preview-pane { 
+                height: 35vh; 
+                flex: none; 
+                position: sticky; 
+                top: 0; 
+                z-index: 40;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                padding: 10px;
+            }
+            .edit-pane { 
+                width: 100%; 
+                border-left: none; 
+                height: auto; 
+                flex: 1;
+                padding-bottom: 100px; 
+            }
+            body { overflow: hidden; } 
         }
 
         .section-card { 
             background: var(--carbon-black); 
             border: 1px solid var(--charcoal); 
-            padding: 1.25rem; 
+            padding: 1rem; 
             border-radius: 4px; 
-            margin-bottom: 1.5rem; 
+            margin-bottom: 1rem; 
         }
-        
-        /* UI Elements */
+
         .ui-btn { 
-            font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; 
-            padding: 10px 4px; border-radius: 2px; transition: all 0.2s; 
+            font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; 
+            padding: 8px 4px; border-radius: 2px; transition: all 0.2s; 
             background: transparent; color: var(--lilac-ash); border: 1px solid var(--charcoal); 
         }
-        .ui-btn:hover { border-color: var(--bright-snow); color: var(--bright-snow); }
+        .ui-btn:hover { border-color: var(--bright-snow); }
         .active-btn { border-color: var(--bright-snow) !important; background: var(--bright-snow) !important; color: var(--black) !important; }
         .active-filter { background: var(--lilac-ash) !important; color: var(--black) !important; border-color: var(--lilac-ash) !important; }
-        
+
         textarea, select, input[type="text"] { 
             background: var(--black) !important; 
             color: var(--bright-snow) !important; 
             border: 1px solid var(--charcoal) !important; 
-            border-radius: 2px !important; 
-            width: 100%;
+            width: 100%; font-size: 12px;
         }
 
         input[type="range"] { accent-color: var(--bright-snow); height: 2px; width: 100%; cursor: pointer; }
-        
-        .footer { 
-            flex-shrink: 0; 
-            background: var(--black); 
-            border-top: 1px solid var(--carbon-black); 
-            padding: 0.75rem 2rem; 
-        }
     </style>
 </head>
 <body>
 
 <header class="hero flex justify-between items-center">
-    <div>
-        <h1 class="text-xl font-black tracking-tighter uppercase text-[var(--bright-snow)]">
-            QUOTE<span class="text-[var(--lilac-ash)]">STUDIO</span>
-        </h1>
-    </div>
-    <div class="flex gap-4">
-        <button onclick="resetPosition()" class="text-[10px] uppercase font-bold tracking-widest text-[var(--charcoal)] hover:text-white transition-colors">Recenter</button>
-        <button onclick="downloadImage()" class="bg-[var(--bright-snow)] text-[var(--black)] px-6 py-2 rounded-sm font-black text-[10px] uppercase tracking-widest hover:invert transition-all">Export Post</button>
+    <h1 class="text-lg font-black tracking-tighter uppercase text-[var(--bright-snow)]">QUOTE<span class="text-[var(--lilac-ash)]">STUDIO</span></h1>
+    <div class="flex gap-2">
+        <button onclick="resetPosition()" class="text-[9px] uppercase font-bold text-[var(--charcoal)] hover:text-white">Recenter</button>
+        <button onclick="downloadImage()" class="bg-[var(--bright-snow)] text-[var(--black)] px-4 py-1.5 rounded-sm font-black text-[10px] uppercase tracking-widest hover:invert transition-all">Export</button>
     </div>
 </header>
 
-<div class="main-content">
-    <section class="preview-box">
+<div class="workspace">
+    <section class="preview-pane">
         <canvas id="canvas" width="1080" height="1350"></canvas>
     </section>
 
-    <aside class="sidebar">
-        <div class="section-card" style="border-style: double; border-width: 3px;">
-            <h3 class="text-[10px] font-black uppercase mb-3 text-[var(--bright-snow)]">AI Wisdom Engine</h3>
+    <aside class="edit-pane">
+        <div class="section-card border-dashed">
+            <h3 class="text-[9px] font-black uppercase mb-3 text-[var(--bright-snow)]">AI Wisdom Engine</h3>
             <div class="grid grid-cols-2 gap-2 mb-2">
-                <input type="text" id="ai-mood" placeholder="Mood..." class="p-2 text-xs">
-                <select id="ai-type" class="p-2 text-xs">
+                <input type="text" id="ai-mood" placeholder="Mood..." class="p-2">
+                <select id="ai-type" class="p-2">
                     <option value="Philosophical">Philosophical</option>
-                    <option value="Psychological">Psychological</option>
+                    <option value="Romantic">Romantic</option>
+                    <option value="Funny">Funny</option>
+                    <option value="Motivation">Motivation</option>
                     <option value="Poetic">Poetic</option>
+                    <option value="Stoic">Stoic</option>
                 </select>
             </div>
-            <button onclick="generateAIQuotes()" class="w-full py-2 bg-[var(--charcoal)] text-white font-bold text-[10px] uppercase tracking-widest hover:bg-[var(--lilac-ash)] hover:text-black transition-colors">Request 5 Quotes</button>
-            <div id="ai-results" class="hidden mt-3 space-y-2 max-h-32 overflow-y-auto text-[10px] border-t border-[var(--charcoal)] pt-2"></div>
+            <button onclick="generateAIQuotes()" class="w-full py-2 bg-[var(--charcoal)] text-white font-bold text-[9px] uppercase hover:bg-[var(--lilac-ash)] hover:text-black transition-all">Request 5 AI Quotes</button>
+            <div id="ai-results" class="hidden mt-2 space-y-2 max-h-48 overflow-y-auto text-[10px] border-t border-[var(--charcoal)] pt-2"></div>
         </div>
 
         <div class="section-card">
-            <h3 class="text-[10px] font-black uppercase mb-4 text-[var(--lilac-ash)]">Visual Processing</h3>
-            <label class="block text-[9px] uppercase text-zinc-500 mb-2">Upload Image</label>
-            <input type="file" id="upload" accept="image/*" class="text-[10px] mb-4 file:bg-zinc-800 file:border-none file:text-white file:px-2 file:py-1 file:mr-2" />
-            
-            <div class="flex flex-wrap gap-2 mb-6">
-                <button onclick="setFilter('none')" id="f-none" class="filter-btn text-[8px] px-3 py-1 active-filter">RAW</button>
-                <button onclick="setFilter('vintage')" id="f-vintage" class="filter-btn text-[8px] px-3 py-1">VINTAGE</button>
-                <button onclick="setFilter('dark')" id="f-dark" class="filter-btn text-[8px] px-3 py-1">NOIR</button>
-                <button onclick="setFilter('sad')" id="f-sad" class="filter-btn text-[8px] px-3 py-1">B&W</button>
-                <button onclick="setFilter('happy')" id="f-happy" class="filter-btn text-[8px] px-3 py-1">VIVID</button>
+            <h3 class="text-[9px] font-black uppercase mb-3 text-[var(--lilac-ash)]">Image & Filters</h3>
+            <input type="file" id="upload" accept="image/*" class="text-[9px] mb-3" />
+            <div class="flex flex-wrap gap-1.5 mb-4">
+                <button onclick="setFilter('none')" id="f-none" class="filter-btn text-[8px] px-2 py-1 active-filter">RAW</button>
+                <button onclick="setFilter('vintage')" id="f-vintage" class="filter-btn text-[8px] px-2 py-1">VINTAGE</button>
+                <button onclick="setFilter('dark')" id="f-dark" class="filter-btn text-[8px] px-2 py-1">NOIR</button>
+                <button onclick="setFilter('sad')" id="f-sad" class="filter-btn text-[8px] px-2 py-1">B&W</button>
+                <button onclick="setFilter('happy')" id="f-happy" class="filter-btn text-[8px] px-2 py-1">VIVID</button>
             </div>
-
-            <div class="grid grid-cols-2 gap-6">
-                <div><span class="text-[9px] uppercase font-bold text-[var(--charcoal)]">Brightness</span><input type="range" id="brightness" min="10" max="150" value="100"></div>
-                <div><span class="text-[9px] uppercase font-bold text-[var(--charcoal)]">Blur</span><input type="range" id="blur" min="0" max="30" value="0"></div>
+            <div class="grid grid-cols-2 gap-4">
+                <div><span class="text-[8px] uppercase font-bold text-[var(--charcoal)]">Brightness</span><input type="range" id="brightness" min="10" max="150" value="100"></div>
+                <div><span class="text-[8px] uppercase font-bold text-[var(--charcoal)]">Blur</span><input type="range" id="blur" min="0" max="30" value="0"></div>
             </div>
         </div>
 
         <div class="section-card">
-            <h3 class="text-[10px] font-black uppercase mb-4 text-[var(--lilac-ash)]">Frame Geometry</h3>
+            <h3 class="text-[9px] font-black uppercase mb-3 text-[var(--lilac-ash)]">Frame Geometry</h3>
             <div class="grid grid-cols-2 gap-2">
                 <button onclick="setFrame('polaroid-classic')" id="btn-polaroid-classic" class="ui-btn active-btn">Portrait 4:5</button>
                 <button onclick="setFrame('insta-story')" id="btn-insta-story" class="ui-btn">Story 9:16</button>
@@ -187,17 +186,15 @@
         </div>
 
         <div class="section-card">
-            <h3 class="text-[10px] font-black uppercase mb-4 text-[var(--lilac-ash)]">Type Settings</h3>
-            <textarea id="quoteText" rows="2" class="p-3 text-xs outline-none mb-3">"Design is silence made visible."</textarea>
-            
-            <div class="flex gap-2 mb-4">
-                <button onclick="toggleFormat('bold')" id="btn-bold" class="w-10 h-10 border border-[var(--charcoal)] text-xs font-bold">B</button>
-                <button onclick="toggleFormat('italic')" id="btn-italic" class="w-10 h-10 border border-[var(--charcoal)] italic text-xs">I</button>
-                <input type="color" id="fontColor" value="#08090a" class="flex-1 h-10 bg-transparent border-none cursor-pointer">
-                <input type="color" id="bgColor" value="#f4f7f5" class="w-10 h-10 bg-transparent border-none cursor-pointer">
+            <h3 class="text-[9px] font-black uppercase mb-3 text-[var(--lilac-ash)]">Type Settings</h3>
+            <textarea id="quoteText" rows="2" class="p-2 mb-3 outline-none">"Design is silence made visible."</textarea>
+            <div class="flex gap-2 mb-3">
+                <button onclick="toggleFormat('bold')" id="btn-bold" class="w-10 h-8 border border-[var(--charcoal)] text-[10px] font-bold">B</button>
+                <button onclick="toggleFormat('italic')" id="btn-italic" class="w-10 h-8 border border-[var(--charcoal)] text-[10px] italic">I</button>
+                <input type="color" id="fontColor" value="#08090a" class="flex-1 h-8 bg-transparent border-none cursor-pointer">
+                <input type="color" id="bgColor" value="#f4f7f5" class="w-10 h-8 bg-transparent border-none cursor-pointer">
             </div>
-
-            <select id="fontFamily" class="p-3 text-xs mb-4">
+            <select id="fontFamily" class="p-2 mb-3 text-xs">
                 <option value="Playfair Display">Playfair Classic</option>
                 <option value="Inter">Modern Inter</option>
                 <option value="Bebas Neue">Bold Impact</option>
@@ -209,19 +206,18 @@
                 <option value="Special Elite">Mechanical Type</option>
                 <option value="Space Mono">Space Mono</option>
             </select>
-
-            <div class="space-y-4">
-                <div class="flex justify-between text-[9px] uppercase font-bold text-[var(--charcoal)]"><span>Scale</span><input type="range" id="fontSize" min="20" max="250" value="80"></div>
-                <div class="flex justify-between text-[9px] uppercase font-bold text-[var(--charcoal)]"><span>Leading</span><input type="range" id="lineHeight" min="0.8" max="2.5" step="0.1" value="1.2"></div>
-                <div class="flex justify-between text-[9px] uppercase font-bold text-[var(--charcoal)]"><span>Kerning</span><input type="range" id="letterSpacing" min="-5" max="50" value="0"></div>
+            <div class="space-y-3">
+                <div class="flex justify-between text-[8px] uppercase font-bold text-[var(--charcoal)]"><span>Scale</span><input type="range" id="fontSize" min="20" max="250" value="80" class="w-2/3"></div>
+                <div class="flex justify-between text-[8px] uppercase font-bold text-[var(--charcoal)]"><span>Leading</span><input type="range" id="lineHeight" min="0.8" max="2.5" step="0.1" value="1.2" class="w-2/3"></div>
+                <div class="flex justify-between text-[8px] uppercase font-bold text-[var(--charcoal)]"><span>Kerning</span><input type="range" id="letterSpacing" min="-5" max="50" value="0" class="w-2/3"></div>
             </div>
         </div>
     </aside>
 </div>
 
 <footer class="footer flex justify-between items-center">
-    <p class="text-[9px] text-[var(--charcoal)] font-bold tracking-widest uppercase">© 2025 QUOTE STUDIO</p>
-    <a href="https://my-new-portfolio-3sq7.vercel.app/" target="_blank" class="text-[9px] font-black uppercase tracking-[3px] text-[var(--lilac-ash)] hover:text-white transition-colors">Build with Vibe - PSTARZ</a>
+    <p class="text-[8px] text-[var(--charcoal)] font-bold tracking-widest uppercase">© 2025 QUOTE STUDIO</p>
+    <a href="https://my-new-portfolio-3sq7.vercel.app/" target="_blank" class="text-[8px] font-black uppercase tracking-widest text-[var(--lilac-ash)] hover:text-white transition-colors">Build with Vibe - PSTARZ</a>
 </footer>
 
 <script>
@@ -255,11 +251,9 @@ const getPos = (e) => {
 };
 
 canvas.addEventListener('mousedown', () => state.isDragging = true);
-canvas.addEventListener('touchstart', (e) => { e.preventDefault(); state.isDragging = true; }, {passive: false});
-
+canvas.addEventListener('touchstart', (e) => { state.isDragging = true; }, {passive: true});
 window.addEventListener('mousemove', (e) => { if(state.isDragging) { const p = getPos(e); state.x = p.x; state.y = p.y; draw(); } });
-window.addEventListener('touchmove', (e) => { if(state.isDragging) { const p = getPos(e); state.x = p.x; state.y = p.y; draw(); } }, {passive: false});
-
+window.addEventListener('touchmove', (e) => { if(state.isDragging) { const p = getPos(e); state.x = p.x; state.y = p.y; draw(); } }, {passive: true});
 window.addEventListener('mouseup', () => state.isDragging = false);
 window.addEventListener('touchend', () => state.isDragging = false);
 
@@ -276,12 +270,22 @@ function toggleFormat(type) {
 function generateAIQuotes() {
     const res = document.getElementById('ai-results');
     res.classList.remove('hidden');
-    res.innerHTML = "Processing deep logic...";
+    res.innerHTML = "<p class='animate-pulse'>Processing deep logic...</p>";
+    
     setTimeout(() => {
-        const quotes = ["Architecture is inhabited sculpture.", "The detail is not the detail. It is the design.", "Less is only more where more is no good.", "Whitespace is like air: it is necessary for design to breathe.", "Simplicity is the final achievement."];
-        res.innerHTML = quotes.map(q => `<div onclick="useQuote('${q.replace(/'/g, "\\'")}')" class="p-2 border-b border-[var(--charcoal)] hover:text-white cursor-pointer italic">"${q}"</div>`).join('');
-    }, 600);
+        const quoteBank = {
+            Philosophical: ["Wonder is the beginning of wisdom.", "The unexamined life is not worth living.", "He who has a why to live can bear almost any how.", "We are what we repeatedly do.", "Life is not a problem to be solved, but a reality to be experienced."],
+            Romantic: ["In all the world, there is no heart for me like yours.", "To love is to see a glimpse of eternity.", "Whatever our souls are made of, his and mine are the same.", "To love and be loved is to feel the sun from both sides.", "Grow old along with me! The best is yet to be."],
+            Motivation: ["Don't count the days, make the days count.", "Great work comes from loving what you do.", "Start where you are. Use what you have. Do what you can.", "The secret of getting ahead is getting started.", "It always seems impossible until it's done."],
+            Poetic: ["The stars shine for those who dream.", "Ink is the blood of the soul.", "The woods are lovely, dark and deep.", "Hope is the thing with feathers that perches in the soul.", "Poetry is the rhythmical creation of beauty in words."],
+            Stoic: ["You have power over your mind - not outside events.", "Waste no more time arguing what a good man should be. Be one.", "The best revenge is to be unlike him who performed the injury.", "If it is not right do not do it; if it is not true do not say it.", "Very little is needed to make a happy life."],
+            Funny: ["I'm not lazy, I'm just on energy saving mode.", "My life is a constant battle between sleep and food.", "Common sense is like deodorant. The people who need it most never use it.", "I find television very educating. Every time somebody turns it on, I go into the other room and read a book.", "Better to remain silent and be thought a fool than to speak out and remove all doubt."]
+        };
+        const selected = quoteBank[document.getElementById('ai-type').value] || quoteBank.Philosophical;
+        res.innerHTML = selected.map(q => `<div onclick="useQuote('${q.replace(/'/g, "\\'")}')" class="p-2 border-b border-[var(--charcoal)] hover:text-white cursor-pointer italic">"${q}"</div>`).join('');
+    }, 400);
 }
+
 function useQuote(q) { state.text = `"${q}"`; document.getElementById('quoteText').value = state.text; draw(); }
 
 ['quoteText', 'fontSize', 'fontFamily', 'fontColor', 'bgColor', 'lineHeight', 'letterSpacing', 'brightness', 'blur'].forEach(id => {
@@ -365,7 +369,7 @@ function wrapText(context, text, x, y, maxWidth, lineHeight) {
 
 function downloadImage() {
     const link = document.createElement('a');
-    link.download = `StudioPstarz-Artwork.png`;
+    link.download = `QuoteStudio-Artwork.png`;
     link.href = canvas.toDataURL('image/png', 1.0);
     link.click();
 }
